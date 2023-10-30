@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Projeto Integrador III</title>
+</head>
+<body>
+    <main>
+        <article>
+            <header class="cabeçalho">
+                <h1 class="titulo"> SISTEMAS EMBARCADOS </h1>
+                <img class="logotipo" src="fatec_ra_campinas_jundiai_br.png" alt="Logotipo do Site">
+            </header>
+
+            <section class="botoes-espaço">
+                <div>
+
+                <!--Botões para escolher as posições no elevador-->
+                    <input class="botao-posição" id="c1" type="button" value="1" onclick="selecionarPosicao(this)">
+                    <input class="botao-posição" id="c2" type="button" value="2" onclick="selecionarPosicao(this)">
+                    <input class="botao-posição" id="c3" type="button" value="3" onclick="selecionarPosicao(this)">
+                    <br>
+                    <input class="botao-posição" id="b1" type="button" value="4" onclick="selecionarPosicao(this)">
+                    <input class="botao-posição" id="b2" type="button" value="5" onclick="selecionarPosicao(this)">
+                    <input class="botao-posição" id="b3" type="button" value="6" onclick="selecionarPosicao(this)">
+                    <br>
+                    <input class="botao-posição" id="a1" type="button" value="7" onclick="selecionarPosicao(this)">
+                    <input class="botao-posição" id="a2" type="button" value="8" onclick="selecionarPosicao(this)">
+                    <input class="botao-posição" id="a3" type="button" value="9" onclick="selecionarPosicao(this)">
+                </div>
+
+                <!--Botões para mover/resetar posições escolhidas-->
+                <div class="botoes-adicionais">
+                    <input class="botao-adicional1" id="mover" type="button" value="Mover" onclick="moverElevador()">
+                    <input class="botao-adicional2" id="resetar" type="button" value="Resetar Posição" onclick="resetarPosicao()">
+                </div>
+
+
+                
+                
+            </section>
+            <div id="msg"></div>
+            <p class="mensagem-final" id="elevator-data">Aguardando dados...</p>
+            
+            
+        </article>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
+
