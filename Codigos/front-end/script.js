@@ -1,6 +1,6 @@
 let msg = document.querySelector('div#msg');
 let pos_atual = '';
-let urlWebServer = "http://192.168.207.74";
+let urlWebServer = "http://192.168.4.1";
 
 function obterDadosElevador() {
   const elevatorDataElement = document.getElementById('elevator-data');
@@ -56,4 +56,30 @@ function moverElevador() {
     msg.innerHTML = 'Selecione uma posição antes de mover o elevador';
   }
 }
+
+let isPressed = false
+var btnDispensar = document.querySelector("#dispensar");
+btnDispensar.addEventListener("click", function(){
+    isPressed = true;
+    console.log(`Pressionado = ${isPressed}`);
+    dispensar();
+});
+
+function dispensar() {
+    fetch(`${urlWebServer}/dispensar`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ isPressionado: isPressed }),
+    })
+    .then(data => {
+        // Processar a resposta, se necessário
+    })
+    .catch(error => {
+        console.error('Erro na solicitação:', error);
+    });
+    isPressed = false
+}
+
 

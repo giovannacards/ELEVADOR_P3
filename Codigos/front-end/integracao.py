@@ -36,14 +36,9 @@ def verifica_leds(n):
 
 
 
-# Constantes
-WIFI_SSID = "Ez"
-WIFI_PASSWORD = "12347800"
-IP_CONFIG = ('192.168.207.74', '255.255.255.0', '192.168.207.60', '192.168.207.60')
-PORT = 80
 
 
-def init_wifi(WIFI_SSID: str, WIFI_PASSWORD: str, IP_CONFIG: tuple=()) -> network.WLAN:
+def init_wifi():
     """
     Esta função recebe os parâmetros de configuração
     da rede e se conecta a rede Wifi.
@@ -52,21 +47,16 @@ def init_wifi(WIFI_SSID: str, WIFI_PASSWORD: str, IP_CONFIG: tuple=()) -> networ
     :return: retorna network.WLAN
     """
     
-    wlan = network.WLAN(network.STA_IF)
-    wlan.active(False)
-    wlan.active(True)
-    wlan.connect(WIFI_SSID, WIFI_PASSWORD)
+    ap = network.WLAN(network.AP_IF)
+    ap.active(True)
+    ap.config(essid='Elevador2D', password='elevador2023!')
+    ap.ifconfig(('192.168.4.1', '255.255.255.0', '192.168.4.1', '8.8.8.8'))
 
-    while not wlan.isconnected():
-        pass
-
-    if IP_CONFIG != ():
-        wlan.ifconfig(IP_CONFIG)
 
     print("Conectado à rede Wi-Fi")
-    print(f'IP: {wlan.ifconfig()[0]}')
+    print(f'IP: {ap.ifconfig()[0]}')
     
-    return wlan
+    return ap
 
 
 def read_elevator_positions():
@@ -94,7 +84,26 @@ def handle_post_request(client_socket: socket, path, data):
     :param client_socket: recebe o objeto socket
     :param path: recebe a rota especificada no JavaScript
     :param data: recebe os dados da requisição POST
-    """
+    """ 
+    if path == '/dispensar' and data:
+        try:
+            json_data = ujson.loads(data) # Atribui o json à variável
+            isPressed = json_data.get('isPressionado')
+            if isPressed:
+                print('Dispensar')
+                #dispensar()
+            # Resposta de que o json foi recebido com sucesso
+            client_socket.send('HTTP/1.1 200 OK\n')
+            client_socket.send('Content-Type: text/plain\n')
+            client_socket.send('Connection: close\n\n')
+            
+        except Exception as e:
+            print("Erro ao lidar com a solicitação POST:", str(e))
+    else:
+        client_socket.send('HTTP/1.1 404 Not Found\n')
+        client_socket.send('Content-Type: text/html\n')
+        client_socket.send('Connection: close\n\n')
+        client_socket.send('Rota não encontrada')
 
     if path == '/moverElevador' and data:
         try:
@@ -236,8 +245,9 @@ def handle_request(client_socket: socket):
 
 
 def main():
-    wlan = init_wifi(WIFI_SSID, WIFI_PASSWORD, IP_CONFIG)
-    addr = socket.getaddrinfo(wlan.ifconfig()[0], PORT)[0][-1]
+    PORT = 80
+    ap = init_wifi()
+    addr = socket.getaddrinfo(ap.ifconfig()[0], PORT)[0][-1]
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server.bind(addr)
@@ -258,6 +268,8 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
 
 
 
