@@ -3,6 +3,7 @@ from machine import Pin
 import time
 from time import sleep
 from stepper import Stepper
+import uasyncio as asyncio
 
 class elevador():
     '''
@@ -26,40 +27,40 @@ class elevador():
             }
         
 
-    def mover(self):
+    async def mover(self):
         if self.endereco in self.enderecos:
             pos_x, pos_y = self.enderecos[self.endereco]
             
             s2 = Stepper(self.motor_x_step, self.motor_x_dir, steps_per_rev=200, speed_sps=300)
             s2.target(pos_x)
-            time.sleep(20)
+            await asyncio.sleep(20)
 
             s1 = Stepper(self.motor_y_step, self.motor_y_dir, steps_per_rev=200,speed_sps=300)
             s1.target(pos_y)
-            time.sleep(20)
+            await asyncio.sleep(20)
 
 
-    def voltar(self):
+    async def voltar(self):
         if self.endereco in self.enderecos:
             pos_x, pos_y = self.enderecos[self.endereco]
             
             s2 = Stepper(self.motor_x_step, self.motor_x_dir, steps_per_rev=200, speed_sps=300)
             s2.target(pos_x * -1)
-            time.sleep(20)
+            await asyncio.sleep(20)
 
             s1 = Stepper(self.motor_y_step, self.motor_y_dir, steps_per_rev=200,speed_sps=300)
             s1.target(pos_y * -1)
-            time.sleep(20)
+            await asyncio.sleep(20)
 
     
-    def dispensar(self):
+    def dispensar(self): # ? async na frente ?
         i = 0
         x = 0
 
         # Picuda na peça
         while i < 32:
             self.servo.value(1)
-            sleep(0.0024)
+            sleep(0.0024) # ? await asyncio. na frente ?
             self.servo.value(0)
             i += 1
 
@@ -68,28 +69,41 @@ class elevador():
         # Servo volta à posição inicial
         while x < 32 :
             self.servo.value(1)
-            sleep(0.0015)
+            sleep(0.0015) # ? await asyncio. na frente ?
             self.servo.value(0)
             x += 1
+        print('Peça depositada !')
+'''
+# Inicialize o loop de evento asyncio
+loop = asyncio.get_event_loop()
 
+# Crie uma instância da classe Elevador
+elev = elevador(2)
 
+# Crie tarefas assíncronas para as funções mover e dispensar
+mover_task = loop.create_task(elev.mover())
+elev.dispensar()
+#voltar_origem_task = loop.create_task(elev.voltar())
 
+# Execute o loop de eventos asyncio
+loop.run_forever()
+'''
 
-while True:
-    elev = elevador(6)
+'''while True:
+    elev = elevador(2)
     elev.mover()
     elev.voltar()
     elev.dispensar()
+'''
 
+'''
+#tempo de pausa entre os movimentos   
+sleep(1)
+# Exemplo de uso para mover para o endereço 1
+time.sleep(5)
+mover_para_endereco(6)
+dispensar()
 
-    '''
-    #tempo de pausa entre os movimentos   
-    sleep(1)
-    # Exemplo de uso para mover para o endereço 1
-    time.sleep(5)
-    mover_para_endereco(6)
-    dispensar()
-
-    # mover para origem quando o botao de reset da pagina for pressionado
-    mover_para_endereco(1)'''
+# mover para origem quando o botao de reset da pagina for pressionado
+mover_para_endereco(1)'''
 
