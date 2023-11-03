@@ -2,23 +2,6 @@ let msg = document.querySelector('div#msg');
 let pos_atual = '';
 let urlWebServer = "http://192.168.4.1";
 
-function obterDadosElevador() {
-  const elevatorDataElement = document.getElementById('elevator-data');
-  fetch('/json/elevator_positions.json')
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Erro na solicitação: ' + response.status);
-      }
-      return response.json();
-    })
-    .then(data => {
-      console.log('Dados recebidos:', data);
-      elevatorDataElement.innerHTML = `X: Posições: ${data.x}, Y: ${data.y}`;
-    })
-    .catch(error => {
-      console.error('Erro na solicitação:', error);
-    });
-}
 
 function selecionarPosicao(btn) {
   let btn_value = btn.value;
@@ -30,7 +13,6 @@ function resetarPosicao() {
 }
 
 function moverElevador() {
-  obterDadosElevador();
   if (pos_atual !== '') {
     fetch(`${urlWebServer}/moverElevador`, {
       method: 'POST',
@@ -72,9 +54,6 @@ function dispensar() {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({ isPressionado: isPressed }),
-    })
-    .then(data => {
-        // Processar a resposta, se necessário
     })
     .catch(error => {
         console.error('Erro na solicitação:', error);

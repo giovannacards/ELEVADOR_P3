@@ -1,67 +1,48 @@
 import network
 import usocket as socket 
 import ujson
-import urequests as requests
-from motores.elevador_com_classe import * 
-import _thread
+from machine import Pin
+from elevador_final import *
 
 '''
---------------------
--- TESTE DOS LEDS --
---------------------
+**************************** FUNCIONAMENTO *********************************
 
-led_A1 = Pin(2, Pin.OUT)
-led_A2 = Pin(4, Pin.OUT)
-led_A3 = Pin(5, Pin.OUT)
+i -) O arquivo elevador_final (que contém a classe elevador)
+é chamado.
 
-led_B1 = Pin(18, Pin.OUT)
-led_B2 = Pin(19, Pin.OUT)
-led_B3 = Pin(21, Pin.OUT)
+ii -) É criado um ponto de acesso "Elevador2D" cuja senha é "elevador2023!"
 
-led_C1 = Pin(22, Pin.OUT)
-led_C2 = Pin(23, Pin.OUT)
-led_C3 = Pin(13, Pin.OUT)
+iii -) Os arquivos HTML, CSS e JavaScript são carregados e atualizados para
+a página via websocket 
 
+iv -) A cada vez que o botão mover é pressionado após a seleção da posição
+o ESP32 recebe, atráves do JavaScript, o número da posição e move, dispensa a
+peça e volta para a posição inicial automaticamente.
 
-def verifica_leds(n):
-    n = int(n)
-    n = n - 1
-    lista_leds = [led_A1, led_A2, led_A3, led_B1, led_B2, led_B3, led_C1, led_C2, led_C3]
-    for led in lista_leds:
-        if n == lista_leds.index(led):
-            led.value(1)
-        else:
-            led.value(0)
-'''        
-        
+OBS: O botão dispensar não precisa ser pressionado depois de mover o elevador
 
-
-
+******************************************************************************
+'''
 
 
 def init_wifi():
     """
     Esta função recebe os parâmetros de configuração
     da rede e se conecta a rede Wifi.
-    :param WIFI_SSID: recebe uma string
-    :param WIFI_PASSWORD: recebe uma string
-    :return: retorna network.WLAN
+    :return: retorna network.AP
     """
     
     ap = network.WLAN(network.AP_IF)
     ap.active(True)
-    ap.config(essid='Elevador2D', password='elevador2023!')
+    ap.config(essid='Elevador2D', authmode=3, password='elevador2023!')
     ap.ifconfig(('192.168.4.1', '255.255.255.0', '192.168.4.1', '8.8.8.8'))
 
 
-    print("Conectado à rede Wi-Fi")
+    print("Rede WIFI iniciada")
     print(f'IP: {ap.ifconfig()[0]}')
     
     return ap
 
-
-def read_elevator_positions():
-    return {'x': 70, 'y': 80} # Alterar para ler as posições reais
 
 
 def serve_file(file_path: str) -> str:
@@ -79,8 +60,8 @@ def serve_file(file_path: str) -> str:
         return None
     
 
-elev = elevador()
 def handle_post_request(client_socket: socket, path, data):
+    elev = elevador()
     """
     Essa função lida com as requisições POST.
     :param client_socket: recebe o objeto socket
@@ -91,9 +72,12 @@ def handle_post_request(client_socket: socket, path, data):
         try:
             json_data = ujson.loads(data) # Atribui o json à variável
             isPressed = json_data.get('isPressionado')
+            
             if isPressed:
-                _thread.start_new_thread(elev.dispensar, ())
-                print('Dispensado!')
+                print('Dispensando...')
+                elev.dispensar()
+                print('Dispensado!\n')
+
             # Resposta de que o json foi recebido com sucesso
             client_socket.send('HTTP/1.1 200 OK\n')
             client_socket.send('Content-Type: text/plain\n')
@@ -111,12 +95,9 @@ def handle_post_request(client_socket: socket, path, data):
         try:
             json_data = ujson.loads(data) # Atribui o json à variável
             position = json_data.get('position')
-            
-            elev = elevador(position)
-            _thread.start_new_thread(elev.mover, ())
-            _thread.start_new_thread(elev.voltar, ())
-
-            print(f"Posição recebida: {position}")
+            print(f"Movendo para a posição {position}...")
+            elev.mover(position)
+            elev.voltar(position)
             
             # Resposta de que o json foi recebido com sucesso
             client_socket.send('HTTP/1.1 200 OK\n')
@@ -147,11 +128,9 @@ def handle_static_request(client_socket: socket, path: str):
     elif path.endswith('.js'):
         content_type = 'application/javascript'
     elif path.endswith('.json'):
-        content_type = 'application/json'
+        pass
     if path.endswith('.json'):
-        # Se for a vez de carregar o json
-        json_data = read_elevator_positions()
-        response = ujson.dumps(json_data)
+        pass
     else:
         # Senão, carrega os outros arquivos
         response = serve_file(path)
@@ -240,9 +219,7 @@ def handle_request(client_socket: socket):
             """
             
             if file_path.startswith('/json'):
-                json_data = read_elevator_positions()
-                response = ujson.dumps(json_data)
-                client_socket.send(response)
+                pass
 
             else:
                 handle_static_request(client_socket, file_path)
@@ -253,8 +230,8 @@ def handle_request(client_socket: socket):
 
 def main():
     PORT = 80
-    ap = init_wifi()
-    addr = socket.getaddrinfo(ap.ifconfig()[0], PORT)[0][-1]
+    ponto_acesso = init_wifi()
+    addr = socket.getaddrinfo(ponto_acesso.ifconfig()[0], PORT)[0][-1]
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     server.bind(addr)
@@ -265,7 +242,7 @@ def main():
 
     while True:
         client, addr = server.accept()
-        client.settimeout(40.0)
+        client.settimeout(42.0)
         try:
             handle_request(client)
         except Exception as e:
@@ -275,15 +252,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
-
-
 
