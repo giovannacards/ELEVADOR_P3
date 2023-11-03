@@ -2,7 +2,8 @@ import network
 import usocket as socket 
 import ujson
 import urequests as requests
-#from machine import Pin
+from motores.elevador_com_classe import * 
+import _thread
 
 '''
 --------------------
@@ -77,7 +78,8 @@ def serve_file(file_path: str) -> str:
     except OSError:
         return None
     
-    
+
+elev = elevador()
 def handle_post_request(client_socket: socket, path, data):
     """
     Essa função lida com as requisições POST.
@@ -90,8 +92,8 @@ def handle_post_request(client_socket: socket, path, data):
             json_data = ujson.loads(data) # Atribui o json à variável
             isPressed = json_data.get('isPressionado')
             if isPressed:
-                print('Dispensar')
-                #dispensar()
+                _thread.start_new_thread(elev.dispensar, ())
+                print('Dispensado!')
             # Resposta de que o json foi recebido com sucesso
             client_socket.send('HTTP/1.1 200 OK\n')
             client_socket.send('Content-Type: text/plain\n')
@@ -109,6 +111,11 @@ def handle_post_request(client_socket: socket, path, data):
         try:
             json_data = ujson.loads(data) # Atribui o json à variável
             position = json_data.get('position')
+            
+            elev = elevador(position)
+            _thread.start_new_thread(elev.mover, ())
+            _thread.start_new_thread(elev.voltar, ())
+
             print(f"Posição recebida: {position}")
             
             # Resposta de que o json foi recebido com sucesso

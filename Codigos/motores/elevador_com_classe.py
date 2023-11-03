@@ -12,7 +12,7 @@ class elevador():
     '''
 
 
-    def __init__(self, endereco) -> None:
+    def __init__(self, endereco=None) -> None:
         self.endereco = endereco
         self.motor_x_step = 14
         self.motor_x_dir = 27
