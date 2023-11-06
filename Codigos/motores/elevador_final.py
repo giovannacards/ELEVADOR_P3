@@ -73,3 +73,12 @@ class elevador():
             self.servo.value(0)
             x += 1
         print('Peça depositada!')
+        
+ '''       
+while True:
+    eleva=elevador()
+    eleva.mover(2)
+    sleep(14)
+    eleva.voltar(2)
+    sleep(14)
+'''
