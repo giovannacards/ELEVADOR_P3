@@ -94,7 +94,7 @@ def handle_post_request(client_socket: socket, path, data):
     if path == '/moverElevador' and data:
         try:
             json_data = ujson.loads(data) # Atribui o json à variável
-            position = json_data.get('position')
+            position = int(json_data.get('position'))
             print(f"Movendo para a posição {position}...")
             elev.mover(position)
             elev.voltar(position)
@@ -252,4 +252,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
