@@ -27,12 +27,12 @@ class elevador():
         if self.endereco in self.enderecos:
             pos_x, pos_y = self.enderecos[self.endereco]
             
-            s2 = Stepper(self.motor_x_step, self.motor_x_dir, steps_per_rev=200, speed_sps=300)
+            s2 = Stepper(self.motor_x_step, self.motor_x_dir, steps_per_rev=200, speed_sps=400)
             s2.target(pos_x)
             sleep(20)
             self.dispensar()
 
-            s1 = Stepper(self.motor_y_step, self.motor_y_dir, steps_per_rev=200,speed_sps=300)
+            s1 = Stepper(self.motor_y_step, self.motor_y_dir, steps_per_rev=200,speed_sps=400)
             s1.target(pos_y)
             sleep(20)
 
@@ -42,11 +42,11 @@ class elevador():
         if self.endereco in self.enderecos:
             pos_x, pos_y = self.enderecos[self.endereco]
 
-            s1 = Stepper(self.motor_y_step, self.motor_y_dir, steps_per_rev=200,speed_sps=300)
+            s1 = Stepper(self.motor_y_step, self.motor_y_dir, steps_per_rev=200,speed_sps=400)
             s1.target(pos_y * -1)
             sleep(20)
             
-            s2 = Stepper(self.motor_x_step, self.motor_x_dir, steps_per_rev=200, speed_sps=300)
+            s2 = Stepper(self.motor_x_step, self.motor_x_dir, steps_per_rev=200, speed_sps=400)
             s2.target(pos_x * -1)
             sleep(20)
 
