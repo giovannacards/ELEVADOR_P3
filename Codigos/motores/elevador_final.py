@@ -30,15 +30,14 @@ class elevador():
             s2 = Stepper(self.motor_x_step, self.motor_x_dir, steps_per_rev=200, speed_sps=400)
             s2.target(pos_x)
             sleep(20)
+            
 
             s1 = Stepper(self.motor_y_step, self.motor_y_dir, steps_per_rev=200,speed_sps=400)
             s1.target(pos_y)
             sleep(20)
 
             self.dispensar()
-
-
-
+            
     def voltar(self, endereco):
         self.endereco = endereco
         if self.endereco in self.enderecos:
@@ -51,6 +50,7 @@ class elevador():
             s2 = Stepper(self.motor_x_step, self.motor_x_dir, steps_per_rev=200, speed_sps=400)
             s2.target(pos_x * -1)
             sleep(20)
+        print('Mande uma nova posição')
 
             
 
@@ -76,7 +76,7 @@ class elevador():
             x += 1
         print('Peça depositada!')
         
- '''       
+'''       
 while True:
     eleva=elevador()
     eleva.mover(2)
